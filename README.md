@@ -1,3 +1,3 @@
-# Binary Classification of Liver Disease using ML
+# Liver Disease ML
 
-This is a machine learning project for binary classification of liver disease.
+Binary Classification of Liver Disease using Machine Learning
