@@ -345,3 +345,24 @@ print("  ✓ 03_correlation_heatmap.png")
 print("\n" + "="*70)
 print("All data is now ready for machine learning model training!")
 print("="*70 + "\n")
+
+# ========================================================================
+# STEP 10: SAVE PROCESSED DATA
+# ========================================================================
+print("\n" + "="*70)
+print("STEP 10: SAVING PROCESSED DATA")
+print("="*70)
+
+# Create processed data directory
+processed_dir = os.path.join(BASE_DIR, "data/processed")
+os.makedirs(processed_dir, exist_ok=True)
+
+# Save the scaled and resampled datasets
+print(f"Saving data to {processed_dir}...")
+
+X_train_scaled.to_csv(os.path.join(processed_dir, "X_train_processed.csv"), index=False)
+X_test_scaled.to_csv(os.path.join(processed_dir, "X_test_processed.csv"), index=False)
+y_train_resampled.to_csv(os.path.join(processed_dir, "y_train_processed.csv"), index=False)
+y_test.to_csv(os.path.join(processed_dir, "y_test_processed.csv"), index=False)
+
+print("✓ All processed files saved successfully.")
