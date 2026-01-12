@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Data Preparation Pipeline for Liver Disease Classification
 
@@ -262,7 +261,7 @@ print("="*70)
 # SMOTE: Oversamples minority class by creating synthetic samples
 # ENN: Removes noisy samples from majority class
 # IMPORTANT: Applied ONLY to training data to prevent data leakage
-print("\n--- Applying SMOTE-ENN to training data ---")
+'''print("\n--- Applying SMOTE-ENN to training data ---")
 smote_enn = SMOTEENN(random_state=42)
 X_train_resampled, y_train_resampled = smote_enn.fit_resample(X_train, y_train)
 
@@ -274,7 +273,27 @@ print("\nResampled class distribution:")
 print("Value counts:")
 print(y_train_resampled.value_counts())
 print("\nClass proportions:")
-print(y_train_resampled.value_counts(normalize=True))
+print(y_train_resampled.value_counts(normalize=True))'''
+
+from imblearn.over_sampling import SMOTE
+
+print("\n--- Before resampling ---")
+print(f"Class 0 (healthy):  {(y_train == 0).sum()}")
+print(f"Class 1 (diseased): {(y_train == 1).sum()}")
+
+# Use SMOTE to create synthetic samples for minority class
+# sampling_strategy=1.0 means: oversample minority to EXACTLY match majority
+# This creates perfect 50-50 balance
+smote = SMOTE(sampling_strategy=1.0, random_state=42)
+X_train_resampled, y_train_resampled = smote.fit_resample(X_train, y_train)
+
+print("\n--- After SMOTE resampling (50-50 balanced) ---")
+print(f"Original X_train shape: {X_train.shape}")
+print(f"Resampled X_train shape: {X_train_resampled.shape}")
+print(f"Class 0 (healthy):  {(y_train_resampled == 0).sum()}")
+print(f"Class 1 (diseased): {(y_train_resampled == 1).sum()}")
+print(f"Total training samples: {len(y_train_resampled)}")
+print(f"\n✓ Classes are perfectly balanced (50-50)!")
 
 # ========================================================================
 # STEP 9: FEATURE SCALING
