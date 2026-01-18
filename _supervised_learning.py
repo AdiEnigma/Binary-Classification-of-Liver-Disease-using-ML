@@ -392,9 +392,8 @@ plt.close()
 
 print("[OK] Precision-recall curves saved to outputs/02d_precision_recall_curves.png")
 
-# ========================================================================
+
 # CROSS-VALIDATION ANALYSIS
-# ========================================================================
 print("\n" + "="*70)
 print("VALIDATING MODEL CONSISTENCY ACROSS DATA SPLITS")
 print("="*70)
@@ -479,9 +478,8 @@ High std (+/- > 0.08):
   [!] May be overfitting or underfitting
 """)
 
-# ============================================================================
+
 # CROSS-VALIDATION COMPARISON PLOT: Test vs CV Performance
-# ============================================================================
 # Create comparison: Test Set Metrics vs Cross-Validation Metrics
 fig, axes = plt.subplots(1, 2, figsize=(14, 5))
 
@@ -563,11 +561,11 @@ print("  • CORAL bars (Cross-Validation) = Average performance across 5 folds 
 print("  • ERROR BARS = Variability across folds (smaller = more consistent)")
 print("  • Gap between bars = Potential overfitting/underfitting")
 
-# ============================================================================
-# STEP 3H: SHAP MODEL EXPLAINABILITY
-# ============================================================================
+
+# SHAP MODEL EXPLAINABILITY
+
 print("\n" + "="*70)
-print("STEP 3H: SHAP EXPLAINABILITY ANALYSIS")
+print("SHAP EXPLAINABILITY ANALYSIS")
 print("="*70)
 
 # Initialize SHAP explainer with best XGBoost model
@@ -577,9 +575,8 @@ shap_values = explainer.shap_values(X_test)
 print("✓ SHAP explainer initialized for XGBoost model")
 print(f"✓ SHAP values computed for {X_test.shape[0]} test samples")
 
-# ============================================================================
+
 # Visualization 1: Feature Importance (Mean Absolute SHAP values)
-# ============================================================================
 plt.figure(figsize=(10, 6))
 shap.summary_plot(shap_values, X_test, plot_type="bar", show=False)
 plt.title("Feature Importance: Mean |SHAP| Values (XGBoost)", fontsize=14, fontweight='bold')
@@ -590,9 +587,8 @@ plt.savefig(os.path.join(OUTPUT_DIR, "04_shap_feature_importance.png"), dpi=300,
 plt.close()
 print("✓ Feature importance plot saved: 04_shap_feature_importance.png")
 
-# ============================================================================
+
 # Visualization 2: SHAP Summary Plot (Beeswarm)
-# ============================================================================
 plt.figure(figsize=(12, 8))
 shap.summary_plot(shap_values, X_test, show=False)
 plt.title("SHAP Summary Plot: Feature Impact on Model Output", fontsize=14, fontweight='bold')
@@ -601,9 +597,8 @@ plt.savefig(os.path.join(OUTPUT_DIR, "05_shap_summary_beeswarm.png"), dpi=300, b
 plt.close()
 print("✓ SHAP summary beeswarm plot saved: 05_shap_summary_beeswarm.png")
 
-# ============================================================================
+
 # Visualization 3: SHAP Dependence Plots (Top 4 Features)
-# ============================================================================
 feature_names = X_test.columns.tolist()
 top_features_idx = np.argsort(np.abs(shap_values).mean(axis=0))[-4:][::-1]
 top_features = [feature_names[i] for i in top_features_idx]
@@ -623,9 +618,8 @@ plt.savefig(os.path.join(OUTPUT_DIR, "06_shap_dependence_plots.png"), dpi=300, b
 plt.close()
 print("✓ SHAP dependence plots saved: 06_shap_dependence_plots.png")
 
-# ============================================================================
+
 # Visualization 4: Custom Force Plots for Individual Patients (READABLE)
-# ============================================================================
 # Select 6 patients: 3 high-risk (diseased) and 3 low-risk (healthy)
 diseased_indices = np.where(y_test == 1)[0]
 healthy_indices = np.where(y_test == 0)[0]
@@ -690,9 +684,9 @@ plt.savefig(os.path.join(OUTPUT_DIR, "07_shap_force_plots_patients.png"), dpi=30
 plt.close()
 print("✓ SHAP force plots saved: 07_shap_force_plots_patients.png")
 
-# ============================================================================
-# SHAP Interpretation Guide
-# ============================================================================
+
+# SHAP Interpretation Guide--------------------------------------------------------
+
 print("\n" + "="*70)
 print("SHAP VALUES INTERPRETATION GUIDE")
 print("="*70)
@@ -731,11 +725,10 @@ CLINICAL APPLICATION:
 print(f"\n✓ All SHAP visualizations saved to outputs/")
 print("✓ Use these plots to explain predictions to clinicians and patients")
 
-# ============================================================================
-# STEP 3I: RISK STRATIFICATION
-# ============================================================================
+
+#RISK STRATIFICATION
 print("\n" + "="*70)
-print("STEP 3I: PATIENT RISK STRATIFICATION")
+print("PATIENT RISK STRATIFICATION")
 print("="*70)
 
 # Get probabilities for all test patients
@@ -761,14 +754,14 @@ patient_explanations = []
 feature_names = X_test.columns.tolist()
 
 for patient_idx in range(len(X_test)):
-    # Get top 5 biomarkers (by absolute SHAP contribution)
+    # top 5 biomarkers (by absolute SHAP contribution)
     shap_contributions = list(zip(feature_names, shap_values[patient_idx]))
     shap_contributions_sorted = sorted(shap_contributions, key=lambda x: abs(x[1]), reverse=True)
     
     top_5_pushing_disease = [x for x in shap_contributions_sorted[:5] if x[1] > 0]
     top_5_pushing_healthy = [x for x in shap_contributions_sorted if x[1] < 0][:5]
     
-    # Get patient's actual values
+    # patient's actual values
     patient_values = X_test.iloc[patient_idx]
     
     # Build clinical recommendation
@@ -838,9 +831,9 @@ for risk_tier in ["LOW RISK", "MEDIUM RISK", "HIGH RISK"]:
         diseased_count = (tier_actuals == 1).sum()
         print(f"  {risk_tier:12s}: {accuracy:.1%} accurate | {diseased_count}/{mask.sum()} actually diseased")
 
-# ============================================================================
+
 # VISUALIZATION: Risk Tier Distribution
-# ============================================================================
+
 fig, axes = plt.subplots(1, 2, figsize=(14, 5))
 
 # Plot 1: Risk distribution
@@ -876,9 +869,9 @@ plt.close()
 
 print(f"\n✓ Risk stratification visualization saved: 08_patient_risk_stratification_viz.png")
 
-# ============================================================================
+
 # SHOW EXAMPLE PATIENTS FROM EACH RISK TIER
-# ============================================================================
+
 print("\n" + "="*70)
 print("EXAMPLE PATIENTS FROM EACH RISK TIER")
 print("="*70)
