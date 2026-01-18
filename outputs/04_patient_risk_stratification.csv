@@ -1,0 +1,118 @@
+Patient_ID,Risk_Tier,Disease_Probability,Severity,Top_Biomarkers_Pushing_Disease,Clinical_Recommendation,Actual_Label
+0,HIGH RISK,90.3%,Critical,"aspartate_aminotransferase, alamine_aminotransferase",Immediate clinical evaluation and specialist referral recommended,Disease Present
+1,HIGH RISK,89.5%,Critical,"total_protiens, albumin_and_globulin_ratio, gender",Immediate clinical evaluation and specialist referral recommended,Disease Present
+2,HIGH RISK,80.5%,Critical,"alkaline_phosphotase, total_protiens",Immediate clinical evaluation and specialist referral recommended,No Disease
+3,HIGH RISK,97.0%,Critical,"alkaline_phosphotase, age, direct_bilirubin",Immediate clinical evaluation and specialist referral recommended,Disease Present
+4,MEDIUM RISK,43.2%,Moderate,age,Schedule follow-up screening within 2-4 weeks,Disease Present
+5,HIGH RISK,97.8%,Critical,"alkaline_phosphotase, age, total_protiens",Immediate clinical evaluation and specialist referral recommended,Disease Present
+6,HIGH RISK,93.0%,Critical,"total_bilirubin, albumin_and_globulin_ratio, age",Immediate clinical evaluation and specialist referral recommended,No Disease
+7,HIGH RISK,85.6%,Critical,"alkaline_phosphotase, total_protiens, age",Immediate clinical evaluation and specialist referral recommended,No Disease
+8,HIGH RISK,93.4%,Critical,"age, alamine_aminotransferase, albumin_and_globulin_ratio",Immediate clinical evaluation and specialist referral recommended,Disease Present
+9,LOW RISK,19.9%,Low,albumin,Continue routine monitoring; repeat screening in 6-12 months,No Disease
+10,HIGH RISK,99.9%,Critical,"aspartate_aminotransferase, direct_bilirubin, age",Immediate clinical evaluation and specialist referral recommended,Disease Present
+11,HIGH RISK,81.3%,Critical,"age, alamine_aminotransferase",Immediate clinical evaluation and specialist referral recommended,Disease Present
+12,MEDIUM RISK,64.8%,Moderate,"albumin, albumin_and_globulin_ratio",Schedule follow-up screening within 2-4 weeks,No Disease
+13,LOW RISK,6.1%,Low,None significant,Continue routine monitoring; repeat screening in 6-12 months,Disease Present
+14,HIGH RISK,95.8%,Critical,"age, direct_bilirubin, total_bilirubin",Immediate clinical evaluation and specialist referral recommended,Disease Present
+15,LOW RISK,26.6%,Low,direct_bilirubin,Continue routine monitoring; repeat screening in 6-12 months,Disease Present
+16,HIGH RISK,94.9%,Critical,"age, total_protiens, albumin",Immediate clinical evaluation and specialist referral recommended,No Disease
+17,MEDIUM RISK,66.3%,Moderate,"alkaline_phosphotase, albumin_and_globulin_ratio",Schedule follow-up screening within 2-4 weeks,Disease Present
+18,HIGH RISK,99.4%,Critical,"aspartate_aminotransferase, alkaline_phosphotase, total_protiens",Immediate clinical evaluation and specialist referral recommended,Disease Present
+19,HIGH RISK,97.7%,Critical,"alkaline_phosphotase, aspartate_aminotransferase, direct_bilirubin",Immediate clinical evaluation and specialist referral recommended,Disease Present
+20,HIGH RISK,73.1%,Critical,"total_protiens, alamine_aminotransferase, total_bilirubin",Immediate clinical evaluation and specialist referral recommended,Disease Present
+21,HIGH RISK,99.8%,Critical,"aspartate_aminotransferase, direct_bilirubin, age",Immediate clinical evaluation and specialist referral recommended,Disease Present
+22,LOW RISK,14.6%,Low,None significant,Continue routine monitoring; repeat screening in 6-12 months,Disease Present
+23,MEDIUM RISK,67.1%,Moderate,"age, total_protiens",Schedule follow-up screening within 2-4 weeks,Disease Present
+24,HIGH RISK,90.5%,Critical,"albumin_and_globulin_ratio, alkaline_phosphotase, total_protiens",Immediate clinical evaluation and specialist referral recommended,No Disease
+25,MEDIUM RISK,59.9%,Moderate,"total_protiens, albumin_and_globulin_ratio",Schedule follow-up screening within 2-4 weeks,No Disease
+26,HIGH RISK,90.5%,Critical,"alkaline_phosphotase, albumin_and_globulin_ratio, albumin",Immediate clinical evaluation and specialist referral recommended,Disease Present
+27,HIGH RISK,87.5%,Critical,"direct_bilirubin, total_bilirubin, alamine_aminotransferase",Immediate clinical evaluation and specialist referral recommended,Disease Present
+28,HIGH RISK,99.7%,Critical,"alkaline_phosphotase, age, alamine_aminotransferase",Immediate clinical evaluation and specialist referral recommended,Disease Present
+29,HIGH RISK,95.0%,Critical,"alkaline_phosphotase, total_protiens, alamine_aminotransferase",Immediate clinical evaluation and specialist referral recommended,Disease Present
+30,HIGH RISK,94.3%,Critical,"direct_bilirubin, age, albumin_and_globulin_ratio",Immediate clinical evaluation and specialist referral recommended,No Disease
+31,HIGH RISK,93.7%,Critical,"alkaline_phosphotase, alamine_aminotransferase, gender",Immediate clinical evaluation and specialist referral recommended,No Disease
+32,HIGH RISK,98.3%,Critical,"alkaline_phosphotase, direct_bilirubin, total_bilirubin",Immediate clinical evaluation and specialist referral recommended,Disease Present
+33,HIGH RISK,99.2%,Critical,"age, aspartate_aminotransferase, direct_bilirubin",Immediate clinical evaluation and specialist referral recommended,Disease Present
+34,MEDIUM RISK,45.2%,Moderate,"total_bilirubin, aspartate_aminotransferase",Schedule follow-up screening within 2-4 weeks,Disease Present
+35,HIGH RISK,98.0%,Critical,"aspartate_aminotransferase, alamine_aminotransferase, albumin_and_globulin_ratio",Immediate clinical evaluation and specialist referral recommended,Disease Present
+36,HIGH RISK,98.5%,Critical,"aspartate_aminotransferase, alamine_aminotransferase, alkaline_phosphotase",Immediate clinical evaluation and specialist referral recommended,Disease Present
+37,HIGH RISK,99.4%,Critical,"alkaline_phosphotase, aspartate_aminotransferase, direct_bilirubin",Immediate clinical evaluation and specialist referral recommended,Disease Present
+38,HIGH RISK,96.9%,Critical,"age, alkaline_phosphotase, alamine_aminotransferase",Immediate clinical evaluation and specialist referral recommended,Disease Present
+39,HIGH RISK,79.5%,Critical,"aspartate_aminotransferase, alkaline_phosphotase, alamine_aminotransferase",Immediate clinical evaluation and specialist referral recommended,Disease Present
+40,HIGH RISK,96.6%,Critical,"age, total_protiens, albumin_and_globulin_ratio",Immediate clinical evaluation and specialist referral recommended,No Disease
+41,HIGH RISK,95.3%,Critical,"direct_bilirubin, total_bilirubin, alamine_aminotransferase",Immediate clinical evaluation and specialist referral recommended,Disease Present
+42,HIGH RISK,99.3%,Critical,"aspartate_aminotransferase, direct_bilirubin, alkaline_phosphotase",Immediate clinical evaluation and specialist referral recommended,Disease Present
+43,HIGH RISK,98.4%,Critical,"age, alkaline_phosphotase, total_protiens",Immediate clinical evaluation and specialist referral recommended,Disease Present
+44,LOW RISK,9.0%,Low,None significant,Continue routine monitoring; repeat screening in 6-12 months,No Disease
+45,HIGH RISK,88.9%,Critical,"albumin_and_globulin_ratio, alamine_aminotransferase, age",Immediate clinical evaluation and specialist referral recommended,Disease Present
+46,HIGH RISK,77.2%,Critical,"total_bilirubin, age, alkaline_phosphotase",Immediate clinical evaluation and specialist referral recommended,Disease Present
+47,MEDIUM RISK,42.1%,Moderate,"age, total_protiens",Schedule follow-up screening within 2-4 weeks,No Disease
+48,HIGH RISK,94.6%,Critical,"alkaline_phosphotase, direct_bilirubin, aspartate_aminotransferase",Immediate clinical evaluation and specialist referral recommended,Disease Present
+49,LOW RISK,10.4%,Low,total_protiens,Continue routine monitoring; repeat screening in 6-12 months,Disease Present
+50,HIGH RISK,98.1%,Critical,"aspartate_aminotransferase, alkaline_phosphotase, albumin",Immediate clinical evaluation and specialist referral recommended,Disease Present
+51,MEDIUM RISK,63.3%,Moderate,"albumin_and_globulin_ratio, alkaline_phosphotase",Schedule follow-up screening within 2-4 weeks,No Disease
+52,LOW RISK,25.0%,Low,age,Continue routine monitoring; repeat screening in 6-12 months,No Disease
+53,HIGH RISK,91.2%,Critical,"total_protiens, alkaline_phosphotase, albumin",Immediate clinical evaluation and specialist referral recommended,Disease Present
+54,HIGH RISK,98.0%,Critical,"aspartate_aminotransferase, direct_bilirubin, alamine_aminotransferase",Immediate clinical evaluation and specialist referral recommended,Disease Present
+55,HIGH RISK,93.5%,Critical,"age, total_bilirubin, direct_bilirubin",Immediate clinical evaluation and specialist referral recommended,Disease Present
+56,MEDIUM RISK,57.5%,Moderate,"alkaline_phosphotase, total_bilirubin, total_protiens",Schedule follow-up screening within 2-4 weeks,Disease Present
+57,HIGH RISK,82.5%,Critical,"age, aspartate_aminotransferase",Immediate clinical evaluation and specialist referral recommended,Disease Present
+58,MEDIUM RISK,30.1%,Moderate,"total_protiens, albumin",Schedule follow-up screening within 2-4 weeks,No Disease
+59,HIGH RISK,72.9%,Critical,"total_protiens, albumin_and_globulin_ratio, total_bilirubin",Immediate clinical evaluation and specialist referral recommended,No Disease
+60,HIGH RISK,75.4%,Critical,"albumin, gender",Immediate clinical evaluation and specialist referral recommended,No Disease
+61,HIGH RISK,99.0%,Critical,"alkaline_phosphotase, total_protiens, age",Immediate clinical evaluation and specialist referral recommended,Disease Present
+62,MEDIUM RISK,53.6%,Moderate,"albumin_and_globulin_ratio, gender, albumin",Schedule follow-up screening within 2-4 weeks,Disease Present
+63,HIGH RISK,99.1%,Critical,"direct_bilirubin, total_bilirubin, total_protiens",Immediate clinical evaluation and specialist referral recommended,Disease Present
+64,MEDIUM RISK,54.0%,Moderate,"total_protiens, albumin_and_globulin_ratio, direct_bilirubin",Schedule follow-up screening within 2-4 weeks,Disease Present
+65,HIGH RISK,99.4%,Critical,"direct_bilirubin, alkaline_phosphotase, age",Immediate clinical evaluation and specialist referral recommended,Disease Present
+66,HIGH RISK,95.7%,Critical,"age, total_bilirubin, direct_bilirubin",Immediate clinical evaluation and specialist referral recommended,Disease Present
+67,HIGH RISK,72.3%,Critical,"albumin, age",Immediate clinical evaluation and specialist referral recommended,Disease Present
+68,HIGH RISK,96.5%,Critical,"age, alkaline_phosphotase, aspartate_aminotransferase",Immediate clinical evaluation and specialist referral recommended,Disease Present
+69,HIGH RISK,97.0%,Critical,"alamine_aminotransferase, alkaline_phosphotase, total_protiens",Immediate clinical evaluation and specialist referral recommended,Disease Present
+70,MEDIUM RISK,64.4%,Moderate,"alamine_aminotransferase, albumin_and_globulin_ratio, total_protiens",Schedule follow-up screening within 2-4 weeks,No Disease
+71,LOW RISK,17.3%,Low,None significant,Continue routine monitoring; repeat screening in 6-12 months,No Disease
+72,MEDIUM RISK,66.8%,Moderate,"age, albumin_and_globulin_ratio",Schedule follow-up screening within 2-4 weeks,No Disease
+73,LOW RISK,18.9%,Low,alamine_aminotransferase,Continue routine monitoring; repeat screening in 6-12 months,Disease Present
+74,HIGH RISK,99.9%,Critical,"aspartate_aminotransferase, direct_bilirubin, age",Immediate clinical evaluation and specialist referral recommended,Disease Present
+75,HIGH RISK,99.5%,Critical,"aspartate_aminotransferase, direct_bilirubin, alkaline_phosphotase",Immediate clinical evaluation and specialist referral recommended,Disease Present
+76,HIGH RISK,94.7%,Critical,"aspartate_aminotransferase, alkaline_phosphotase, alamine_aminotransferase",Immediate clinical evaluation and specialist referral recommended,Disease Present
+77,HIGH RISK,99.1%,Critical,"aspartate_aminotransferase, alkaline_phosphotase, alamine_aminotransferase",Immediate clinical evaluation and specialist referral recommended,Disease Present
+78,HIGH RISK,92.4%,Critical,"age, total_protiens, alamine_aminotransferase",Immediate clinical evaluation and specialist referral recommended,No Disease
+79,MEDIUM RISK,45.4%,Moderate,age,Schedule follow-up screening within 2-4 weeks,Disease Present
+80,MEDIUM RISK,30.2%,Moderate,total_bilirubin,Schedule follow-up screening within 2-4 weeks,No Disease
+81,HIGH RISK,99.6%,Critical,"direct_bilirubin, alkaline_phosphotase, total_protiens",Immediate clinical evaluation and specialist referral recommended,Disease Present
+82,HIGH RISK,85.7%,Critical,"direct_bilirubin, albumin_and_globulin_ratio, gender",Immediate clinical evaluation and specialist referral recommended,Disease Present
+83,HIGH RISK,88.0%,Critical,"alkaline_phosphotase, total_protiens, albumin",Immediate clinical evaluation and specialist referral recommended,Disease Present
+84,HIGH RISK,98.9%,Critical,"age, direct_bilirubin, total_bilirubin",Immediate clinical evaluation and specialist referral recommended,Disease Present
+85,HIGH RISK,99.0%,Critical,"direct_bilirubin, alkaline_phosphotase, age",Immediate clinical evaluation and specialist referral recommended,Disease Present
+86,HIGH RISK,99.1%,Critical,"total_bilirubin, age, total_protiens",Immediate clinical evaluation and specialist referral recommended,Disease Present
+87,HIGH RISK,97.6%,Critical,"aspartate_aminotransferase, alkaline_phosphotase, alamine_aminotransferase",Immediate clinical evaluation and specialist referral recommended,Disease Present
+88,HIGH RISK,98.7%,Critical,"alkaline_phosphotase, total_protiens, aspartate_aminotransferase",Immediate clinical evaluation and specialist referral recommended,No Disease
+89,HIGH RISK,93.1%,Critical,"alkaline_phosphotase, aspartate_aminotransferase, alamine_aminotransferase",Immediate clinical evaluation and specialist referral recommended,No Disease
+90,HIGH RISK,71.3%,Critical,"total_bilirubin, alamine_aminotransferase",Immediate clinical evaluation and specialist referral recommended,No Disease
+91,HIGH RISK,99.3%,Critical,"total_protiens, direct_bilirubin, total_bilirubin",Immediate clinical evaluation and specialist referral recommended,Disease Present
+92,HIGH RISK,86.7%,Critical,"total_protiens, albumin, albumin_and_globulin_ratio",Immediate clinical evaluation and specialist referral recommended,No Disease
+93,HIGH RISK,99.4%,Critical,"aspartate_aminotransferase, direct_bilirubin, alkaline_phosphotase",Immediate clinical evaluation and specialist referral recommended,Disease Present
+94,LOW RISK,20.2%,Low,alamine_aminotransferase,Continue routine monitoring; repeat screening in 6-12 months,Disease Present
+95,HIGH RISK,93.5%,Critical,"aspartate_aminotransferase, alkaline_phosphotase, total_bilirubin",Immediate clinical evaluation and specialist referral recommended,No Disease
+96,HIGH RISK,77.2%,Critical,"age, aspartate_aminotransferase",Immediate clinical evaluation and specialist referral recommended,Disease Present
+97,MEDIUM RISK,46.8%,Moderate,"alkaline_phosphotase, age",Schedule follow-up screening within 2-4 weeks,Disease Present
+98,HIGH RISK,88.2%,Critical,"alkaline_phosphotase, total_protiens, albumin",Immediate clinical evaluation and specialist referral recommended,Disease Present
+99,HIGH RISK,96.7%,Critical,"age, total_protiens, alamine_aminotransferase",Immediate clinical evaluation and specialist referral recommended,Disease Present
+100,MEDIUM RISK,31.0%,Moderate,albumin_and_globulin_ratio,Schedule follow-up screening within 2-4 weeks,No Disease
+101,HIGH RISK,97.7%,Critical,"direct_bilirubin, total_bilirubin, age",Immediate clinical evaluation and specialist referral recommended,Disease Present
+102,MEDIUM RISK,63.7%,Moderate,"albumin_and_globulin_ratio, gender, alkaline_phosphotase",Schedule follow-up screening within 2-4 weeks,Disease Present
+103,HIGH RISK,93.2%,Critical,"aspartate_aminotransferase, alkaline_phosphotase, alamine_aminotransferase",Immediate clinical evaluation and specialist referral recommended,Disease Present
+104,HIGH RISK,93.1%,Critical,"aspartate_aminotransferase, albumin_and_globulin_ratio, age",Immediate clinical evaluation and specialist referral recommended,No Disease
+105,HIGH RISK,98.6%,Critical,"aspartate_aminotransferase, alamine_aminotransferase, direct_bilirubin",Immediate clinical evaluation and specialist referral recommended,Disease Present
+106,HIGH RISK,73.7%,Critical,"albumin, total_protiens, alamine_aminotransferase",Immediate clinical evaluation and specialist referral recommended,No Disease
+107,MEDIUM RISK,54.4%,Moderate,"direct_bilirubin, gender",Schedule follow-up screening within 2-4 weeks,Disease Present
+108,HIGH RISK,99.7%,Critical,"aspartate_aminotransferase, age, direct_bilirubin",Immediate clinical evaluation and specialist referral recommended,Disease Present
+109,MEDIUM RISK,30.0%,Moderate,None significant,Schedule follow-up screening within 2-4 weeks,No Disease
+110,HIGH RISK,95.0%,Critical,"alkaline_phosphotase, aspartate_aminotransferase, total_bilirubin",Immediate clinical evaluation and specialist referral recommended,Disease Present
+111,HIGH RISK,78.5%,Critical,"alkaline_phosphotase, aspartate_aminotransferase, total_protiens",Immediate clinical evaluation and specialist referral recommended,Disease Present
+112,HIGH RISK,93.5%,Critical,"total_bilirubin, alkaline_phosphotase, age",Immediate clinical evaluation and specialist referral recommended,Disease Present
+113,MEDIUM RISK,34.1%,Moderate,None significant,Schedule follow-up screening within 2-4 weeks,No Disease
+114,HIGH RISK,92.8%,Critical,"aspartate_aminotransferase, alkaline_phosphotase, albumin_and_globulin_ratio",Immediate clinical evaluation and specialist referral recommended,Disease Present
+115,HIGH RISK,73.2%,Critical,"albumin, albumin_and_globulin_ratio",Immediate clinical evaluation and specialist referral recommended,No Disease
+116,HIGH RISK,88.4%,Critical,"total_bilirubin, aspartate_aminotransferase, total_protiens",Immediate clinical evaluation and specialist referral recommended,Disease Present
