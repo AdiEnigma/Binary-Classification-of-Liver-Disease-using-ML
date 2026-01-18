@@ -1,0 +1,33 @@
+@import 'tailwindcss' source(none);
+@source '../**/*.{js,ts,jsx,tsx}';
+
+@import 'tw-animate-css';
+
+/* Custom animations for medical dashboard */
+@keyframes pulse-delay-75 {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@keyframes pulse-delay-150 {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.animate-pulse.delay-75 {
+  animation: pulse-delay-75 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  animation-delay: 0.075s;
+}
+
+.animate-pulse.delay-150 {
+  animation: pulse-delay-150 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  animation-delay: 0.15s;
+}
