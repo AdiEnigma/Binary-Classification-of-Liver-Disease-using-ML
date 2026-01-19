@@ -3,11 +3,11 @@ FINAL CLINICAL ANALYSIS REPORT (Manifold Optimized)
 ============================================================
 
 1. MODEL PERFORMANCE METRICS
-   - Silhouette Score: 62.54%
-   - Adjusted Rand Index (ARI): 22.51%
-   - Normalized Mutual Info (NMI): 15.49%
+   - Silhouette Score: 58.57%
+   - Adjusted Rand Index (ARI): 20.59%
+   - Normalized Mutual Info (NMI): 13.68%
 
-   🏆 TOTAL CLUSTER VALIDATION SCORE: 33.52/100
+   🏆 TOTAL CLUSTER VALIDATION SCORE: 30.94/100
       (Composite of available metrics)
 
 2. BIOMARKER SIGNIFICANCE
@@ -18,6 +18,6 @@ FINAL CLINICAL ANALYSIS REPORT (Manifold Optimized)
    alkaline_phosphotase      | 0.0000       | Significant
    alamine_aminotransferase  | 0.0000       | Significant
    aspartate_aminotransferase | 0.0000       | Significant
-   total_protiens            | 0.0628       | Not Significant
+   total_protiens            | 0.0326       | Significant
    albumin                   | 0.0000       | Significant
    albumin_and_globulin_ratio | 0.0000       | Significant

@@ -225,15 +225,107 @@ export function BulkCSVSection() {
     setError("");
 
     try {
-      const computed = canonicalRows.map((cRow) => {
-        const patient = canonicalToPatientData(cRow);
-        const pred = predictLiverDisease(patient);
-        return { input: patient, output: pred };
+      // Option 1: Use backend bulk API (recommended for large datasets)
+      const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+      
+      // Create CSV from canonical rows for backend
+      const patients = canonicalRows.map((cRow) => canonicalToPatientData(cRow));
+      
+      // Convert to CSV format for backend
+      const csvData = patients.map((p) => ({
+        patientId: p.patientId || '',
+        name: p.name || '',
+        age: p.age,
+        gender: p.gender,
+        totalBilirubin: p.totalBilirubin,
+        directBilirubin: p.directBilirubin,
+        alkalinePhosphatase: p.alkalinePhosphatase,
+        sgptAlt: p.sgptAlt,
+        sgotAst: p.sgotAst,
+        totalProteins: p.totalProteins,
+        albumin: p.albumin,
+        agRatio: p.agRatio,
+      }));
+
+      // Create FormData with CSV
+      const csvContent = Papa.unparse(csvData);
+      const blob = new Blob([csvContent], { type: 'text/csv' });
+      const formData = new FormData();
+      formData.append('file', blob, 'patients.csv');
+
+      // Call backend bulk API
+      const response = await fetch(`${API_BASE_URL}/api/predict/bulk`, {
+        method: 'POST',
+        body: formData,
       });
 
-      setResults(computed);
+      if (!response.ok) {
+        throw new Error(`API request failed: ${response.statusText}`);
+      }
+
+      const apiResult = await response.json();
+
+      // Transform backend response to frontend format
+      const transformedResults = apiResult.results.map((result: any) => {
+        // Transform each result to match frontend PredictionResult format
+        const supervised = result.supervised || {};
+        const probability = (supervised.risk_probability || 0) * 100;
+        
+        // Convert to frontend format (simplified - you may need to map more fields)
+        return {
+          input: {
+            patientId: result.patient_id || '',
+            name: result.name || '',
+            age: patients.find(p => p.patientId === result.patient_id)?.age || 0,
+            gender: patients.find(p => p.patientId === result.patient_id)?.gender || '',
+            totalBilirubin: patients.find(p => p.patientId === result.patient_id)?.totalBilirubin || 0,
+            directBilirubin: patients.find(p => p.patientId === result.patient_id)?.directBilirubin || 0,
+            alkalinePhosphatase: patients.find(p => p.patientId === result.patient_id)?.alkalinePhosphatase || 0,
+            sgptAlt: patients.find(p => p.patientId === result.patient_id)?.sgptAlt || 0,
+            sgotAst: patients.find(p => p.patientId === result.patient_id)?.sgotAst || 0,
+            totalProteins: patients.find(p => p.patientId === result.patient_id)?.totalProteins || 0,
+            albumin: patients.find(p => p.patientId === result.patient_id)?.albumin || 0,
+            agRatio: patients.find(p => p.patientId === result.patient_id)?.agRatio || 0,
+          },
+          output: {
+            hasDiseaseRisk: probability > 50,
+            probability: Math.round(probability * 10) / 10,
+            confidence: supervised.confidence || 'Medium',
+            contributingFactors: result.shap?.top_contributing_factors?.slice(0, 5).map((f: any) => ({
+              feature: f.feature,
+              patientValue: 0, // Will be filled from input
+              normalRange: '',
+              contribution: Math.abs(f.shap_value || 0),
+              contributionLevel: Math.abs(f.shap_value || 0) > 0.6 ? 'High' : Math.abs(f.shap_value || 0) > 0.3 ? 'Medium' : 'Low',
+              status: 'Normal' as const,
+              clinicalNote: '',
+            })) || [],
+            clinicalInterpretation: '',
+            recommendations: [],
+            timestamp: new Date(),
+          },
+        };
+      });
+
+      setResults(transformedResults);
+
+      // Fallback: Use individual API calls if bulk fails
     } catch (e) {
-      setError("Prediction failed. Check CSV formatting.");
+      console.error('Bulk prediction error:', e);
+      
+      // Fallback to individual predictions
+      try {
+        const patients = canonicalRows.map((cRow) => canonicalToPatientData(cRow));
+        const computed = await Promise.all(
+          patients.map(async (patient) => {
+            const pred = await predictLiverDisease(patient);
+            return { input: patient, output: pred };
+          })
+        );
+        setResults(computed);
+      } catch (fallbackError) {
+        setError(`Prediction failed: ${fallbackError instanceof Error ? fallbackError.message : 'Unknown error'}`);
+      }
     } finally {
       setIsProcessing(false);
     }

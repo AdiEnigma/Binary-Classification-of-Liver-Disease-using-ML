@@ -39,6 +39,7 @@ import numpy as np
 import os
 import matplotlib.pyplot as plt
 import seaborn as sns
+import joblib
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
 from xgboost import XGBClassifier
@@ -49,7 +50,9 @@ import shap
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.path.join(BASE_DIR, "data/processed")
 OUTPUT_DIR = os.path.join(BASE_DIR, "outputs")
+MODEL_DIR = os.path.join(BASE_DIR, "saved_models")
 os.makedirs(OUTPUT_DIR, exist_ok=True)
+os.makedirs(MODEL_DIR, exist_ok=True)
 
 #Check all imports
 print("All imports successful")
@@ -896,3 +899,26 @@ print("  2. Review top biomarkers for each patient")
 print("  3. Follow clinical recommendations for each tier")
 print("  4. Use SHAP force plots for detailed patient counseling")
 print("\n✓ All outputs saved to outputs/ directory")
+
+# ========================================================================
+# SAVE MODELS FOR INFERENCE
+# ========================================================================
+print("\n" + "="*70)
+print("SAVING MODELS FOR INFERENCE")
+print("="*70)
+
+# Save best XGBoost model (selected as best model)
+xgboost_model_path = os.path.join(MODEL_DIR, "supervised_xgboost_model.pkl")
+joblib.dump(best_xgb, xgboost_model_path)
+print(f"✓ XGBoost model saved to: {xgboost_model_path}")
+
+# Save SHAP explainer
+shap_explainer_path = os.path.join(MODEL_DIR, "shap_explainer.pkl")
+joblib.dump(explainer, shap_explainer_path)
+print(f"✓ SHAP explainer saved to: {shap_explainer_path}")
+
+# Note: Scaler is created in _data_preparation.py but needs to be saved there
+# For now, the scaler should be saved in _data_preparation.py after fitting
+print("\n⚠️  NOTE: Scaler must be saved from _data_preparation.py")
+print("   The scaler is needed for preprocessing new patient data during inference.")
+print(f"\n✓ Models saved to: {MODEL_DIR}")

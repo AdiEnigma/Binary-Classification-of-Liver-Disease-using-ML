@@ -8,6 +8,7 @@
 5. [Model Comparison](#comparison)
 6. [Which Model to Choose](#selection)
 7. [Real-World Clinical Examples](#clinical-examples)
+8. [Backend Architecture - Complete System Design](#backend-architecture)
 
 ---
 
@@ -1088,6 +1089,642 @@ Once we've selected XGBoost as our final model, we can:
 
 ---
 
+# Backend Architecture - Complete System Design {#backend-architecture}
+
+## Overview
+
+This section explains the theoretical foundations and architectural design of the backend system that serves machine learning predictions to the frontend application. The backend acts as a bridge between the React frontend and the trained ML models (Supervised, Unsupervised, and SHAP).
+
+---
+
+## 1. Architectural Pattern: Service-Oriented Layered Architecture
+
+The backend follows a **layered architecture** pattern, which separates concerns into distinct tiers:
+
+```
+┌─────────────────────────────────────────┐
+│   Presentation Layer (FastAPI Routes)   │  ← HTTP/REST + WebSocket APIs
+├─────────────────────────────────────────┤
+│   Business Logic Layer (predict.py)     │  ← Orchestration & Coordination
+├─────────────────────────────────────────┤
+│   Model Layer (Individual Predictors)   │  ← Supervised, Unsupervised, SHAP
+├─────────────────────────────────────────┤
+│   Data Access Layer (Model Loaders)     │  ← Model Persistence & Loading
+└─────────────────────────────────────────┘
+```
+
+### Why This Architecture?
+
+**Separation of Concerns:**
+- Each layer has a single, well-defined responsibility
+- API routes handle HTTP/WebSocket communication only
+- Business logic handles orchestration without knowing HTTP details
+- Model layer focuses purely on ML computations
+- Data access layer handles model persistence
+
+**Benefits:**
+- **Testability**: Each layer can be tested independently
+- **Maintainability**: Changes in one layer don't affect others
+- **Scalability**: Layers can be scaled independently
+- **Reusability**: Model layer can be used by different interfaces (CLI, API, etc.)
+
+---
+
+## 2. FastAPI Framework - Theoretical Rationale
+
+### Why FastAPI?
+
+**Asynchronous I/O Model:**
+
+Traditional synchronous servers process requests one at a time:
+```
+Request 1 → Process (blocking) → Response
+Request 2 → Wait... → Process (blocking) → Response
+Request 3 → Wait... → Process (blocking) → Response
+```
+
+FastAPI uses asynchronous I/O, allowing concurrent request handling:
+```
+Request 1 → Process → (meanwhile)
+Request 2 → Process → (meanwhile)
+Request 3 → Process → Responses sent when ready
+```
+
+**Key Benefits:**
+- **Concurrency**: Handle multiple requests simultaneously
+- **Non-blocking**: While one prediction runs, server accepts other requests
+- **Efficiency**: Single-threaded event loop uses resources efficiently
+- **Scalability**: Can handle 1000s of concurrent connections
+
+### Automatic API Documentation
+
+FastAPI automatically generates OpenAPI/Swagger documentation:
+- **Type hints** → Automatic validation and documentation
+- **Pydantic models** → Request/response schemas with validation
+- **Zero configuration** → Documentation available at `/docs` endpoint
+
+### Type Safety with Pydantic
+
+Pydantic provides runtime validation based on Python type hints:
+```python
+class PatientData(BaseModel):
+    age: int = Field(ge=0, le=120)  # Must be 0-120
+    totalBilirubin: float = Field(ge=0.0)  # Must be non-negative
+```
+
+**Benefits:**
+- **Data Validation**: Invalid data rejected before reaching models
+- **Error Messages**: Clear feedback on what's wrong
+- **Documentation**: Schema automatically documented
+- **Type Safety**: Reduces bugs from type mismatches
+
+---
+
+## 3. Unified Prediction Pipeline - Facade Pattern
+
+### Design Pattern: Facade
+
+The `predict.py` file implements the **Facade Pattern**, providing a unified interface to multiple subsystems:
+
+```
+Client Code
+    ↓
+[Facade: UnifiedPredictor] ← Single entry point
+    ├──→ [Subsystem 1: Supervised Predictor]
+    ├──→ [Subsystem 2: Unsupervised Predictor]
+    └──→ [Subsystem 3: SHAP Explainer]
+```
+
+**Why Facade?**
+- **Simplified Interface**: Client code doesn't need to know about all subsystems
+- **Loose Coupling**: Subsystems can change without affecting clients
+- **Centralized Logic**: All orchestration in one place
+
+### Pipeline Execution Flow
+
+```
+Input Patient Data
+    ↓
+┌─────────────────────────────────────┐
+│  1. Data Validation & Preprocessing │
+│     - Type checking                 │
+│     - Range validation              │
+│     - Feature scaling               │
+└─────────────────────────────────────┘
+    ↓
+┌─────────────────────────────────────┐
+│  2. Parallel Model Execution        │
+│     ┌─────────────┐                 │
+│     │ Supervised  │ → Risk Score    │
+│     └─────────────┘                 │
+│     ┌─────────────┐                 │
+│     │Unsupervised │ → Cluster       │
+│     └─────────────┘                 │
+│     ┌─────────────┐                 │
+│     │   SHAP      │ → Explanations  │
+│     └─────────────┘                 │
+└─────────────────────────────────────┘
+    ↓
+┌─────────────────────────────────────┐
+│  3. Result Aggregation              │
+│     - Combine outputs               │
+│     - Format for frontend           │
+└─────────────────────────────────────┘
+    ↓
+Response to Client
+```
+
+**Key Principles:**
+- **Parallel Execution**: Independent models can run concurrently (using asyncio)
+- **Idempotency**: Same input always produces same output
+- **Determinism**: Fixed random seeds ensure reproducibility
+
+---
+
+## 4. WebSocket Communication Theory
+
+### Why WebSockets for Bidirectional Communication?
+
+**HTTP Request-Response Model (Limitations):**
+
+```
+Client → [Request] → Server
+Client ← [Wait...] ← Server
+Client → [Request] → Server (new connection needed)
+```
+
+**Problems:**
+- **Connection Overhead**: Each request establishes new TCP connection
+- **Unidirectional**: Server can't push updates to client
+- **Stateless**: No persistent connection context
+
+**WebSocket Model:**
+
+```
+Client ←→ [Persistent Connection] ←→ Server
+   ↑                                      ↓
+   └── Can send anytime ──────────────────┘
+```
+
+**Benefits:**
+- **Persistent Connection**: One handshake, many messages
+- **Bidirectional**: Both client and server can send anytime
+- **Low Latency**: No connection overhead per message
+- **Stateful**: Connection maintains context
+
+### WebSocket Protocol Theory
+
+**Handshake Phase:**
+```
+1. Client sends HTTP upgrade request with special headers
+2. Server responds with "101 Switching Protocols"
+3. Connection upgraded to WebSocket protocol
+4. Full-duplex communication begins
+```
+
+**Frame-Based Communication:**
+- Messages sent as **frames** (binary or text)
+- FastAPI handles frame encoding/decoding automatically
+- Supports message boundaries and fragmentation for large messages
+
+**Connection Lifecycle:**
+```
+┌──────────┐      ┌──────────┐
+│  Client  │      │  Server  │
+└────┬─────┘      └────┬─────┘
+     │                 │
+     │─── Connect ────>│
+     │<── Accepted ────│
+     │                 │
+     │─── Predict ────>│
+     │                 │ [Processing...]
+     │<── Result ──────│
+     │                 │
+     │─── Predict ────>│
+     │<── Result ──────│
+     │                 │
+     │─── Close ──────>│
+     │<── Closed ──────│
+```
+
+---
+
+## 5. Model Persistence Strategy
+
+### Why Save Models to Disk?
+
+**Training vs. Inference Separation:**
+
+```
+Training Phase (Offline):
+Data → [Train Models] → Save to Disk
+    (Expensive, takes minutes/hours)
+
+Inference Phase (Online):
+Request → [Load Models] → Predict → Response
+    (Fast, takes milliseconds)
+```
+
+**Benefits:**
+- **Speed**: No retraining required on server startup
+- **Consistency**: Same model used for all predictions
+- **Resource Efficiency**: Training requires GPU/CPU-intensive operations
+- **Version Control**: Can keep multiple model versions
+
+### Model Serialization Theory
+
+**Pickle/Joblib Serialization:**
+- Python objects → Binary representation → Disk file
+- Preserves complete object state: weights, parameters, configuration
+- Deserialization reconstructs exact object in memory
+
+**Model Artifacts Stored:**
+
+```
+XGBoost Model:
+- Tree structures (decision rules)
+- Leaf values (predictions at leaves)
+- Feature weights and importance
+
+Scaler Objects:
+- Mean/Median values (for normalization)
+- Scale factors (standard deviation/IQR)
+- Transformation parameters
+
+SHAP Explainer:
+- Tree structure reference (TreeExplainer)
+- Expected values (baseline prediction)
+- Background data reference (if needed)
+
+UMAP Reducer:
+- Embedding parameters
+- Manifold structure learned
+
+KMeans Centroids:
+- Cluster center coordinates
+- Cluster labels mapping
+```
+
+---
+
+## 6. Supervised Learning Predictor - Internal Theory
+
+### XGBoost Prediction Process
+
+**Mathematical Flow:**
+```
+Input Features (x₁, x₂, ..., xₙ)
+    ↓
+[Feature Scaling] → Normalized features (same as training)
+    ↓
+[Tree Ensemble Evaluation]
+    ├─ Tree 1 → score₁
+    ├─ Tree 2 → score₂
+    ├─ Tree 3 → score₃
+    └─ ... → scoreₙ (for all trees)
+    ↓
+[Sum all scores] → raw_score = Σ(scores)
+    ↓
+[Sigmoid Function] → probability = 1 / (1 + e^(-raw_score))
+    ↓
+Output: Probability (0 to 1)
+```
+
+**Decision Threshold:**
+- Probability ≥ 0.5 → "Disease Risk"
+- Probability < 0.5 → "No Disease Risk"
+
+### Feature Scaling Importance
+
+**Why RobustScaler is Used:**
+- **Robust to Outliers**: Uses median and quartiles (not mean/std)
+- **Formula**: `scaled = (x - Q₂) / (Q₃ - Q₁)` where Q = quartile
+- **Preserves Relationships**: Relative distances between values maintained
+
+**Consistency Principle:**
+- **Critical**: Training data was scaled → Inference data MUST use same scaler
+- **Different scaling = Invalid predictions**: Model assumptions break
+- **Same scaler object**: Load exact scaler from training phase
+
+---
+
+## 7. Unsupervised Learning Predictor - Clustering Theory
+
+### Clustering Pipeline Theory
+
+**Step-by-Step Process:**
+
+**1. Outlier Detection (Isolation Forest):**
+```
+Theory: Outliers are "isolated" points in feature space
+- Normal points: Many neighbors nearby
+- Outliers: Few/no neighbors nearby
+
+Algorithm identifies and removes outliers
+before clustering (ensures cleaner clusters)
+```
+
+**2. Dimensionality Reduction (UMAP):**
+```
+High-dimensional space (9 features)
+    ↓
+[UMAP Manifold Learning]
+    ↓
+Low-dimensional space (2 dimensions)
+
+Theory: Preserves local neighborhood structure
+- Points close in 9D remain close in 2D
+- Makes clustering more effective and interpretable
+- Non-linear dimensionality reduction
+```
+
+**3. Cluster Assignment (PSO-KMeans):**
+```
+UMAP Space (2D points)
+    ↓
+[Find closest centroid using PSO-optimized positions]
+    ↓
+Cluster Assignment (0 or 1)
+
+Theory: PSO (Particle Swarm Optimization) finds
+optimal centroid positions before KMeans
+- Better initial placement than random
+- Results in more meaningful clusters
+```
+
+**4. Cluster-to-Risk Mapping:**
+```
+Cluster Assignment → Analyze cluster characteristics
+    ↓
+Compare cluster mean biomarker values
+    ↓
+Map to risk level:
+- Cluster with higher bilirubin → "High Risk"
+- Cluster with normal values → "Low Risk"
+```
+
+**Distance to Centroid:**
+- Measures how "central" patient is to cluster
+- Low distance = Typical cluster member
+- High distance = Atypical (may be edge case)
+
+---
+
+## 8. SHAP Values - Explainability Theory
+
+### SHAP Value Theory
+
+**Shapley Values (Game Theory Origin):**
+```
+Concept: Fair allocation of contribution among players
+
+In ML context:
+- Model prediction = "total payoff"
+- Each feature = "player"
+- SHAP value = "fair share" each feature contributes
+```
+
+**Additivity Property:**
+```
+Prediction = Base Value + Σ(SHAP_values)
+
+Example:
+Base Value (average prediction): 0.42
++ Total Bilirubin SHAP: +0.15
++ Albumin SHAP: -0.08
++ AST SHAP: +0.12
+────────────────────────────────
+Final Prediction: 0.61 (High Risk)
+```
+
+**TreeExplainer Algorithm:**
+- **TreeSHAP**: Computes exact SHAP values for tree models
+- **Efficient**: O(TL²D) complexity where T=trees, L=leaves, D=depth
+- **Exact Values**: No approximation needed (unlike KernelSHAP)
+
+### SHAP Output Interpretation
+
+**Feature Contributions:**
+- **Positive SHAP** → Pushes prediction toward disease
+- **Negative SHAP** → Pushes prediction toward healthy
+- **Magnitude** → Strength of contribution
+
+**Clinical Application:**
+- Shows **which biomarkers** drive the prediction
+- Explains **why** patient is high/low risk
+- Helps doctors **understand** model reasoning
+
+---
+
+## 9. Request-Response Data Flow Theory
+
+### State Management
+
+**Stateless Design (REST):**
+```
+Each request contains all necessary information
+No server-side state stored between requests
+
+Benefits:
+- Scalability: Any server can handle any request
+- Reliability: Server crash doesn't lose state
+- Simplicity: No session management needed
+```
+
+**Request Lifecycle:**
+```
+1. Client → HTTP Request (JSON/Form data)
+2. FastAPI → Route Handler (extract data)
+3. Validation → Pydantic (ensure correctness)
+4. Business Logic → UnifiedPredictor
+5. Models → Process (compute predictions)
+6. Response → Format & Return JSON
+7. Client ← Receives results
+```
+
+### Error Handling Theory
+
+**Fail-Fast Principle:**
+- **Validate Early**: Catch errors at input boundary
+- **Prevent Waste**: Invalid data doesn't reach models
+- **Clear Feedback**: Return specific error messages
+
+**Error Propagation:**
+```
+Model Error → Exception → Handler → HTTP 500 (Internal Server Error)
+Validation Error → Pydantic → HTTP 422 (Unprocessable Entity)
+Not Found → HTTP 404
+Unauthorized → HTTP 401
+```
+
+---
+
+## 10. Bulk Processing Theory
+
+### Batch Processing Strategy
+
+**Sequential vs. Parallel:**
+```
+Sequential (Simple):
+Patient 1 → Predict → Result 1
+Patient 2 → Predict → Result 2
+Patient 3 → Predict → Result 3
+Time: n × prediction_time
+
+Parallel (Optimized):
+Patient 1 ┐
+Patient 2 ├→ [Batch Predict] → Results
+Patient 3 ┘
+Time: ~prediction_time (if batched)
+```
+
+**Memory Considerations:**
+- Large CSV files → Process in chunks (streaming)
+- Keep memory usage bounded (don't load entire CSV)
+- Process chunk-by-chunk if needed
+
+### Data Aggregation Theory
+
+**Summary Statistics:**
+```
+Individual Results → Aggregate
+    ↓
+- Count by risk level (High/Medium/Low)
+- Average probability
+- Distribution analysis
+- Export to CSV for download
+```
+
+---
+
+## 11. CORS and Frontend Integration Theory
+
+### Cross-Origin Resource Sharing (CORS)
+
+**Problem:**
+```
+Frontend: http://localhost:5173 (Vite dev server)
+Backend:  http://localhost:8000 (FastAPI)
+
+Browser blocks requests (different origins = security risk)
+```
+
+**Solution:**
+```
+Backend adds CORS headers:
+Access-Control-Allow-Origin: *
+Access-Control-Allow-Methods: GET, POST, OPTIONS
+Access-Control-Allow-Headers: Content-Type
+```
+
+**How It Works:**
+1. Browser sends **preflight request** (OPTIONS) before actual request
+2. Server responds with **allowed origins/methods**
+3. Browser checks if request is allowed
+4. If allowed, sends actual request
+
+### API Contract Theory
+
+**Contract-First Design:**
+- Define **request/response schemas** (Pydantic models)
+- Frontend and backend both use same contract
+- **Type safety**: Prevents mismatched data structures
+- **Documentation**: Schemas serve as API documentation
+
+---
+
+## 12. Performance Optimization Theory
+
+### Model Caching Strategy
+
+**Lazy Loading:**
+```
+Models loaded on first use, then cached in memory
+Reduces startup time
+Memory used only when needed
+```
+
+**Loading Pattern:**
+```python
+# First request: Load models (slow, ~2-3 seconds)
+# Subsequent requests: Use cached models (fast, ~10ms)
+```
+
+### Connection Pooling (Future Optimization)
+
+```
+Multiple requests → Connection pool → Backend
+Reuses connections (reduces TCP handshake overhead)
+```
+
+---
+
+## Summary: Core Theoretical Principles
+
+1. **Separation of Concerns**: API, business logic, and ML separated into layers
+2. **Facade Pattern**: Unified interface hides complexity of multiple subsystems
+3. **Stateless Design**: Each request is independent (enables horizontal scaling)
+4. **Type Safety**: Validation at boundaries prevents errors
+5. **Model Persistence**: Train once, use many times (efficiency)
+6. **Bidirectional Communication**: WebSockets enable real-time interaction
+7. **Explainability**: SHAP values provide interpretability for clinical use
+8. **Fail-Fast**: Validate early, fail clearly with helpful errors
+9. **Scalability**: Stateless design enables horizontal scaling
+10. **Consistency**: Same preprocessing pipeline as training (determinism)
+
+---
+
+## Architecture Diagram
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                      React Frontend                          │
+│  (Doctor-Friendly Liver Disease Dashboard)                  │
+└──────────────────┬──────────────────────────────────────────┘
+                   │ HTTP/REST + WebSocket
+                   ↓
+┌─────────────────────────────────────────────────────────────┐
+│                   FastAPI Backend                            │
+│  ┌────────────────────────────────────────────────────────┐ │
+│  │  API Routes Layer                                      │ │
+│  │  - /api/predict/individual (POST)                      │ │
+│  │  - /api/predict/bulk (POST)                            │ │
+│  │  - /ws/predict (WebSocket)                             │ │
+│  └────────────────────┬───────────────────────────────────┘ │
+│                       ↓                                      │
+│  ┌────────────────────────────────────────────────────────┐ │
+│  │  Unified Predictor (predict.py)                        │ │
+│  │  - Data validation & preprocessing                     │ │
+│  │  - Orchestrates all models                            │ │
+│  │  - Result aggregation                                  │ │
+│  └─────┬──────────┬──────────┬────────────────────────────┘ │
+│        ↓          ↓          ↓                               │
+│  ┌─────────┐ ┌──────────┐ ┌─────────┐                      │
+│  │Supervised│ │Unsupervised│ │  SHAP  │                      │
+│  │Predictor│ │  Predictor  │ │Explainer│                     │
+│  └────┬────┘ └──────┬─────┘ └────┬────┘                     │
+│       │             │            │                           │
+│       └─────────────┴────────────┘                           │
+│                       ↓                                      │
+│  ┌────────────────────────────────────────────────────────┐ │
+│  │  Model Loader Layer                                    │ │
+│  │  - Load from saved_models/ directory                  │ │
+│  │  - Cache in memory                                     │ │
+│  └────────────────────────────────────────────────────────┘ │
+└─────────────────────────────────────────────────────────────┘
+                   │
+                   ↓
+        ┌──────────────────────┐
+        │  saved_models/       │
+        │  - xgboost_model.pkl │
+        │  - scalers.pkl       │
+        │  - shap_explainer.pkl│
+        │  - umap_reducer.pkl  │
+        └──────────────────────┘
+```
+
+---
+
 **This is our complete model understanding guide for the liver disease screening project!**
 
-For any questions about specific models, hyperparameters, or clinical interpretations, refer to this document.
+For any questions about specific models, hyperparameters, clinical interpretations, or backend architecture, refer to this document.

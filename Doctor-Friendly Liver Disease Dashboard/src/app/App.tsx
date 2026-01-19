@@ -25,14 +25,16 @@ export default function App() {
     setIsProcessing(true);
     setCurrentPatientData(data);
 
-    // Simulate ML model processing time
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-
-    // Get prediction from ML model (currently mock)
-    const result = predictLiverDisease(data);
-    setPredictionResult(result);
-
-    setIsProcessing(false);
+    try {
+      // Get prediction from ML model (now calls backend API)
+      const result = await predictLiverDisease(data);
+      setPredictionResult(result);
+    } catch (error) {
+      console.error('Prediction error:', error);
+      // Error handling - could show toast notification
+    } finally {
+      setIsProcessing(false);
+    }
 
     // Scroll to results on mobile
     setTimeout(() => {

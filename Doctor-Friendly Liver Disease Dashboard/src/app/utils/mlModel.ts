@@ -1,11 +1,186 @@
 import { PatientData, PredictionResult, ContributingFactor, NORMAL_RANGES } from '@/app/types/patient';
 
+// Backend API URL - adjust this for your environment
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+
 /**
- * Mock ML Model for Liver Disease Prediction
- * In production, this would call a real ML API endpoint
+ * Call backend API for liver disease prediction
+ * Returns predictions from real ML models (XGBoost, Unsupervised, SHAP)
  */
 
-export function predictLiverDisease(data: PatientData): PredictionResult {
+export async function predictLiverDisease(data: PatientData): Promise<PredictionResult> {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/predict/individual`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      throw new Error(`API request failed: ${response.statusText}`);
+    }
+
+    const apiResult = await response.json();
+
+    // Transform API response to frontend format
+    return transformApiResponseToPredictionResult(apiResult, data);
+  } catch (error) {
+    console.error('API prediction error:', error);
+    // Fallback to mock if API fails (for development)
+    return predictLiverDiseaseMock(data);
+  }
+}
+
+/**
+ * Transform backend API response to frontend PredictionResult format
+ */
+function transformApiResponseToPredictionResult(apiResult: any, originalData: PatientData): PredictionResult {
+  const supervised = apiResult.supervised || {};
+  const shap = apiResult.shap || { top_contributing_factors: [] };
+
+  // Convert probability from 0-1 to 0-100
+  const probability = (supervised.risk_probability || 0) * 100;
+  const hasDiseaseRisk = probability > 50;
+
+  // Convert SHAP contributions to ContributingFactor format
+  const contributingFactors: ContributingFactor[] = shap.top_contributing_factors?.slice(0, 5).map((factor: any) => {
+    const featureName = factor.feature;
+    const shapValue = factor.shap_value || 0;
+    const contribution = Math.abs(shapValue);
+    
+    // Map feature names to display names
+    const displayName = mapFeatureNameToDisplay(featureName);
+    
+    // Get normal range for feature
+    const normalRange = getNormalRangeForFeature(featureName);
+    const patientValue = getPatientValueForFeature(featureName, originalData);
+    const status = evaluateParameter(patientValue, normalRange.min, normalRange.max);
+
+    return {
+      feature: displayName,
+      patientValue: patientValue,
+      normalRange: normalRange.description,
+      contribution: Math.min(contribution, 1), // Normalize to 0-1
+      contributionLevel: getContributionLevel(Math.min(contribution, 1)),
+      status: status,
+      clinicalNote: getClinicalNoteForFeature(featureName),
+    };
+  }) || [];
+
+  // Generate clinical interpretation
+  const clinicalInterpretation = generateClinicalInterpretation(contributingFactors, originalData);
+
+  // Generate recommendations
+  const recommendations = generateRecommendations(contributingFactors, originalData, probability);
+
+  return {
+    hasDiseaseRisk,
+    probability: Math.round(probability * 10) / 10,
+    confidence: supervised.confidence || 'Medium',
+    contributingFactors,
+    clinicalInterpretation,
+    recommendations,
+    timestamp: new Date(apiResult.timestamp || Date.now()),
+  };
+}
+
+/**
+ * Map backend feature names to frontend display names
+ */
+function mapFeatureNameToDisplay(featureName: string): string {
+  const mapping: Record<string, string> = {
+    'totalBilirubin': 'Total Bilirubin (TB)',
+    'total_bilirubin': 'Total Bilirubin (TB)',
+    'directBilirubin': 'Direct Bilirubin (DB)',
+    'direct_bilirubin': 'Direct Bilirubin (DB)',
+    'alkalinePhosphatase': 'Alkaline Phosphatase',
+    'alkaline_phosphotase': 'Alkaline Phosphatase',
+    'sgptAlt': 'SGPT / ALT',
+    'alamine_aminotransferase': 'SGPT / ALT',
+    'sgotAst': 'SGOT / AST',
+    'aspartate_aminotransferase': 'SGOT / AST',
+    'totalProteins': 'Total Proteins',
+    'total_protiens': 'Total Proteins',
+    'albumin': 'Albumin',
+    'agRatio': 'A/G Ratio',
+    'albumin_and_globulin_ratio': 'A/G Ratio',
+  };
+  return mapping[featureName] || featureName;
+}
+
+/**
+ * Get patient value for a feature
+ */
+function getPatientValueForFeature(featureName: string, data: PatientData): number {
+  const mapping: Record<string, keyof PatientData> = {
+    'totalBilirubin': 'totalBilirubin',
+    'total_bilirubin': 'totalBilirubin',
+    'directBilirubin': 'directBilirubin',
+    'direct_bilirubin': 'directBilirubin',
+    'alkalinePhosphatase': 'alkalinePhosphatase',
+    'alkaline_phosphotase': 'alkalinePhosphatase',
+    'sgptAlt': 'sgptAlt',
+    'alamine_aminotransferase': 'sgptAlt',
+    'sgotAst': 'sgotAst',
+    'aspartate_aminotransferase': 'sgotAst',
+    'totalProteins': 'totalProteins',
+    'total_protiens': 'totalProteins',
+    'albumin': 'albumin',
+    'agRatio': 'agRatio',
+    'albumin_and_globulin_ratio': 'agRatio',
+  };
+  const key = mapping[featureName];
+  return key ? (data[key] as number) : 0;
+}
+
+/**
+ * Get normal range for a feature
+ */
+function getNormalRangeForFeature(featureName: string): { min: number; max: number; description: string } {
+  const mapping: Record<string, keyof typeof NORMAL_RANGES> = {
+    'totalBilirubin': 'totalBilirubin',
+    'total_bilirubin': 'totalBilirubin',
+    'directBilirubin': 'directBilirubin',
+    'direct_bilirubin': 'directBilirubin',
+    'alkalinePhosphatase': 'alkalinePhosphatase',
+    'alkaline_phosphotase': 'alkalinePhosphatase',
+    'sgptAlt': 'sgptAlt',
+    'alamine_aminotransferase': 'sgptAlt',
+    'sgotAst': 'sgotAst',
+    'aspartate_aminotransferase': 'sgotAst',
+    'totalProteins': 'totalProteins',
+    'total_protiens': 'totalProteins',
+    'albumin': 'albumin',
+    'agRatio': 'agRatio',
+    'albumin_and_globulin_ratio': 'agRatio',
+  };
+  const key = mapping[featureName];
+  return key ? NORMAL_RANGES[key] : { min: 0, max: 0, description: 'Unknown', unit: '' };
+}
+
+/**
+ * Get clinical note for a feature
+ */
+function getClinicalNoteForFeature(featureName: string): string {
+  const notes: Record<string, string> = {
+    'totalBilirubin': 'Elevated bilirubin suggests possible jaundice, liver function impairment, or bile duct obstruction.',
+    'directBilirubin': 'Elevated direct bilirubin may indicate cholestasis or liver cell damage.',
+    'alkalinePhosphatase': 'Elevated alkaline phosphatase may indicate cholestasis, bile duct obstruction, or bone disorders.',
+    'sgptAlt': 'Elevated ALT indicates liver cell injury, commonly seen in hepatitis or liver inflammation.',
+    'sgotAst': 'Elevated AST suggests liver or muscle damage. AST/ALT ratio helps differentiate liver conditions.',
+    'totalProteins': 'Low total protein may indicate liver disease, malnutrition, or kidney disease.',
+    'albumin': 'Reduced albumin suggests impaired liver synthetic function, malnutrition, or protein loss.',
+    'agRatio': 'Low A/G ratio suggests decreased albumin or increased globulin, which may indicate liver disease or inflammation.',
+  };
+  return notes[featureName] || 'Abnormal values may indicate liver disease or related conditions.';
+}
+
+/**
+ * Fallback mock function (kept for development/testing)
+ */
+function predictLiverDiseaseMock(data: PatientData): PredictionResult {
   // Simulate processing delay
   const delay = Math.random() * 1000 + 500;
 

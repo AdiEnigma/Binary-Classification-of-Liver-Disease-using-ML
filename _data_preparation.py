@@ -12,6 +12,7 @@ import matplotlib.pyplot as plt
 import matplotlib
 matplotlib.use('Agg')  # Use non-interactive backend
 import seaborn as sns
+import joblib
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import RobustScaler
 from imblearn.combine import SMOTEENN
@@ -26,6 +27,8 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 # Construct the full path to the raw CSV data file
 # Uses BASE_DIR to create a robust, cross-platform path
 DATA_PATH = os.path.join(BASE_DIR, "data/raw/indian_liver_patient.csv")
+MODEL_DIR = os.path.join(BASE_DIR, "saved_models")
+os.makedirs(MODEL_DIR, exist_ok=True)
 
 
 # ========================================================================
@@ -385,3 +388,9 @@ y_train_resampled.to_csv(os.path.join(processed_dir, "y_train_processed.csv"), i
 y_test.to_csv(os.path.join(processed_dir, "y_test_processed.csv"), index=False)
 
 print("✓ All processed files saved successfully.")
+
+# Save the scaler for inference
+scaler_path = os.path.join(MODEL_DIR, "supervised_scaler.pkl")
+joblib.dump(scaler, scaler_path)
+print(f"\n✓ Scaler saved to: {scaler_path}")
+print("  (Required for preprocessing new patient data during inference)")

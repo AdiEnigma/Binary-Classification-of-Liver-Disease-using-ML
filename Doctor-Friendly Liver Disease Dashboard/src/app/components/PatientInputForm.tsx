@@ -63,7 +63,7 @@ export function PatientInputForm({ onPredict, isProcessing }: PatientInputFormPr
       newErrors.gender = 'Gender is required';
     }
 
-    // Clinical parameters validation (required + non-negative)
+    // Clinical parameters validation (required + positive values only)
     const clinicalFields: Array<keyof PatientData> = [
       'totalBilirubin',
       'directBilirubin',
@@ -77,8 +77,8 @@ export function PatientInputForm({ onPredict, isProcessing }: PatientInputFormPr
 
     for (const field of clinicalFields) {
       const v = formData[field] as number;
-      if (v === null || v === undefined || Number.isNaN(v) || v <= 0) {
-        newErrors[field] = 'Required field';
+      if (v === null || v === undefined || Number.isNaN(v) || v < 0) {
+        newErrors[field] = 'Must be a positive number';
       }
     }
 
@@ -148,16 +148,16 @@ export function PatientInputForm({ onPredict, isProcessing }: PatientInputFormPr
     agRatio: '',
   };
 
-  // Field placeholders
+  // Field placeholders with abnormal examples
   const PARAMETER_PLACEHOLDERS: Record<string, string> = {
-    totalBilirubin: 'e.g., 0.8',
-    directBilirubin: 'e.g., 0.2',
-    alkalinePhosphatase: 'e.g., 85',
-    sgptAlt: 'e.g., 28',
-    sgotAst: 'e.g., 22',
-    totalProteins: 'e.g., 7.2',
-    albumin: 'e.g., 4.5',
-    agRatio: 'e.g., 1.67',
+    totalBilirubin: 'e.g., 3.5 (high)',
+    directBilirubin: 'e.g., 1.8 (high)',
+    alkalinePhosphatase: 'e.g., 250 (high)',
+    sgptAlt: 'e.g., 85 (high)',
+    sgotAst: 'e.g., 120 (high)',
+    totalProteins: 'e.g., 5.2 (low)',
+    albumin: 'e.g., 2.8 (low)',
+    agRatio: 'e.g., 0.6 (low)',
   };
 
   // Step values
@@ -265,7 +265,8 @@ export function PatientInputForm({ onPredict, isProcessing }: PatientInputFormPr
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 flex items-start gap-2">
               <AlertCircle className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
               <p className="text-xs text-blue-800">
-                Values outside normal ranges will be highlighted. Hover over field labels to see normal ranges.
+                <strong>Testing Tip:</strong> Enter abnormal values (outside normal ranges) to see disease risk predictions. 
+                Values outside normal ranges will be highlighted in amber. Hover over field labels to see normal ranges.
               </p>
             </div>
 
@@ -290,8 +291,6 @@ export function PatientInputForm({ onPredict, isProcessing }: PatientInputFormPr
                       <Input
                         type="number"
                         step={PARAMETER_STEPS[key] ?? 0.01}
-                        min={(range as any).min}
-                        max={(range as any).max}
                         placeholder={PARAMETER_PLACEHOLDERS[key] ?? ''}
                         value={(formData as any)[key] || ''}
                         onChange={(e) =>
@@ -346,6 +345,33 @@ export function PatientInputForm({ onPredict, isProcessing }: PatientInputFormPr
             >
               <RefreshCw className="w-4 h-4 mr-2" />
               Reset
+            </Button>
+
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => {
+                setFormData({
+                  patientId: 'LP-' + Math.floor(Math.random() * 10000),
+                  name: 'High Risk Patient',
+                  age: 55,
+                  gender: 'Male',
+                  totalBilirubin: 4.2,    // High (normal: 0.3-1.2)
+                  directBilirubin: 2.1,   // High (normal: 0.1-0.3)
+                  alkalinePhosphatase: 285, // High (normal: 44-147)
+                  sgptAlt: 95,            // High (normal: 10-40)
+                  sgotAst: 128,           // High (normal: 10-40)
+                  totalProteins: 5.8,     // Low (normal: 6.3-8.2)
+                  albumin: 2.9,           // Low (normal: 3.5-5.0)
+                  agRatio: 0.65,          // Low (normal: 1.1-2.5)
+                });
+                setErrors({});
+              }}
+              disabled={isProcessing}
+              className="min-w-[160px] text-amber-700 border-amber-300 hover:bg-amber-50"
+            >
+              <TestTube className="w-4 h-4 mr-2" />
+              Load High Risk Example
             </Button>
           </div>
         </form>
