@@ -266,42 +266,41 @@ export function BulkCSVSection() {
       const apiResult = await response.json();
 
       // Transform backend response to frontend format
-      const transformedResults = apiResult.results.map((result: any) => {
-        // Transform each result to match frontend PredictionResult format
+      const transformedResults = apiResult.results.map((result: any, index: number) => {
+        // Use the original patient data from the backend response
         const supervised = result.supervised || {};
         const probability = (supervised.risk_probability || 0) * 100;
         
-        // Convert to frontend format (simplified - you may need to map more fields)
         return {
           input: {
-            patientId: result.patient_id || '',
+            patientId: result.patient_id || `patient_${index + 1}`,
             name: result.name || '',
-            age: patients.find(p => p.patientId === result.patient_id)?.age || 0,
-            gender: patients.find(p => p.patientId === result.patient_id)?.gender || '',
-            totalBilirubin: patients.find(p => p.patientId === result.patient_id)?.totalBilirubin || 0,
-            directBilirubin: patients.find(p => p.patientId === result.patient_id)?.directBilirubin || 0,
-            alkalinePhosphatase: patients.find(p => p.patientId === result.patient_id)?.alkalinePhosphatase || 0,
-            sgptAlt: patients.find(p => p.patientId === result.patient_id)?.sgptAlt || 0,
-            sgotAst: patients.find(p => p.patientId === result.patient_id)?.sgotAst || 0,
-            totalProteins: patients.find(p => p.patientId === result.patient_id)?.totalProteins || 0,
-            albumin: patients.find(p => p.patientId === result.patient_id)?.albumin || 0,
-            agRatio: patients.find(p => p.patientId === result.patient_id)?.agRatio || 0,
+            age: result.age || 0,
+            gender: result.gender || '',
+            totalBilirubin: result.totalBilirubin || 0,
+            directBilirubin: result.directBilirubin || 0,
+            alkalinePhosphatase: result.alkalinePhosphatase || 0,
+            sgptAlt: result.sgptAlt || 0,
+            sgotAst: result.sgotAst || 0,
+            totalProteins: result.totalProteins || 0,
+            albumin: result.albumin || 0,
+            agRatio: result.agRatio || 0,
           },
           output: {
             hasDiseaseRisk: probability > 50,
             probability: Math.round(probability * 10) / 10,
             confidence: supervised.confidence || 'Medium',
             contributingFactors: result.shap?.top_contributing_factors?.slice(0, 5).map((f: any) => ({
-              feature: f.feature,
-              patientValue: 0, // Will be filled from input
-              normalRange: '',
+              feature: f.feature || 'Unknown',
+              patientValue: f.patient_value || 0,
+              normalRange: f.normal_range || '',
               contribution: Math.abs(f.shap_value || 0),
               contributionLevel: Math.abs(f.shap_value || 0) > 0.6 ? 'High' : Math.abs(f.shap_value || 0) > 0.3 ? 'Medium' : 'Low',
-              status: 'Normal' as const,
-              clinicalNote: '',
+              status: f.status || 'Normal' as const,
+              clinicalNote: f.clinical_note || '',
             })) || [],
-            clinicalInterpretation: '',
-            recommendations: [],
+            clinicalInterpretation: result.shap?.clinical_interpretation || '',
+            recommendations: result.recommendations || [],
             timestamp: new Date(),
           },
         };
@@ -366,22 +365,22 @@ export function BulkCSVSection() {
     if (displayedResults.length === 0) return;
 
     const exportData = displayedResults.map((r, idx) => ({
-      record: idx + 1,
-      patientId: r.input.patientId ?? "",
-      name: r.input.name ?? "",
-      age: r.input.age,
-      gender: r.input.gender,
-      totalBilirubin: r.input.totalBilirubin,
-      directBilirubin: r.input.directBilirubin,
-      alkalinePhosphatase: r.input.alkalinePhosphatase,
-      sgptAlt: r.input.sgptAlt,
-      sgotAst: r.input.sgotAst,
-      totalProteins: r.input.totalProteins,
-      albumin: r.input.albumin,
-      agRatio: r.input.agRatio,
-      prediction: r.output.hasDiseaseRisk ? "Disease Risk" : "No Disease Risk",
-      probability: r.output.probability,
-      confidence: r.output.confidence,
+      "#": idx + 1,
+      "Patient ID": r.input.patientId || "",
+      "Name": r.input.name || "",
+      "Age": r.input.age,
+      "Gender": r.input.gender,
+      "Total Bilirubin": r.input.totalBilirubin,
+      "Direct Bilirubin": r.input.directBilirubin,
+      "Alkaline Phosphatase": r.input.alkalinePhosphatase,
+      "SGPT/ALT": r.input.sgptAlt,
+      "SGOT/AST": r.input.sgotAst,
+      "Total Proteins": r.input.totalProteins,
+      "Albumin": r.input.albumin,
+      "A/G Ratio": r.input.agRatio,
+      "Prediction": r.output.hasDiseaseRisk ? "Disease Risk" : "No Disease Risk",
+      "Probability (%)": r.output.probability,
+      "Confidence": r.output.confidence,
     }));
 
     const csv = Papa.unparse(exportData);
@@ -390,7 +389,7 @@ export function BulkCSVSection() {
 
     const link = document.createElement("a");
     link.href = url;
-    link.download = `bulk_predictions_${filterMode}_${sortMode}_${Date.now()}.csv`;
+    link.download = `liver_disease_predictions_${new Date().toISOString().split('T')[0]}.csv`;
     link.click();
     URL.revokeObjectURL(url);
   };

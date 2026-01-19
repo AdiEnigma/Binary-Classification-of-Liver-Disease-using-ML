@@ -94,6 +94,18 @@ class BulkPredictionResult(BaseModel):
     """Single result in bulk prediction"""
     patient_id: Optional[str] = None
     name: Optional[str] = None
+    # Include original patient data
+    age: int
+    gender: str
+    totalBilirubin: float
+    directBilirubin: float
+    alkalinePhosphatase: float
+    sgptAlt: float
+    sgotAst: float
+    totalProteins: float
+    albumin: float
+    agRatio: float
+    # Prediction results
     supervised: SupervisedPrediction
     unsupervised: Optional[ClusterAnalysis] = None
     shap: Optional[SHAPExplanation] = None

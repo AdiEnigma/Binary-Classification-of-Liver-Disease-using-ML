@@ -104,6 +104,18 @@ async def predict_bulk(file: UploadFile = File(...)):
                 bulk_result = BulkPredictionResult(
                     patient_id=patient_dict.get("patientId"),
                     name=patient_dict.get("name"),
+                    # Include original patient data
+                    age=patient_dict["age"],
+                    gender=patient_dict["gender"],
+                    totalBilirubin=patient_dict["totalBilirubin"],
+                    directBilirubin=patient_dict["directBilirubin"],
+                    alkalinePhosphatase=patient_dict["alkalinePhosphatase"],
+                    sgptAlt=patient_dict["sgptAlt"],
+                    sgotAst=patient_dict["sgotAst"],
+                    totalProteins=patient_dict["totalProteins"],
+                    albumin=patient_dict["albumin"],
+                    agRatio=patient_dict["agRatio"],
+                    # Prediction results
                     supervised=result["supervised"],
                     unsupervised=result.get("unsupervised"),
                     shap=result.get("shap")

@@ -3,8 +3,11 @@ echo ============================================================
 echo Starting Liver Disease Prediction System
 echo ============================================================
 echo.
+echo Activating virtual environment...
+call .venv\Scripts\activate.bat
+echo.
 echo Starting Backend Server...
-start "Backend Server" cmd /k "cd backend && python -m uvicorn main:app --reload --port 8000"
+start "Backend Server" cmd /k ".venv\Scripts\activate.bat && cd backend && python -m uvicorn main:app --reload --port 8000"
 timeout /t 3 /nobreak >nul
 echo.
 echo Starting Frontend Server...
