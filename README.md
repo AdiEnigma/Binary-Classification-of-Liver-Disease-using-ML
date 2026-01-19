@@ -28,6 +28,29 @@ A comprehensive machine learning-powered clinical decision support system for li
 └─────────────────────┴───────────────────────────────────────────┘
 ```
 
+<details>
+<summary>🎯 Feature Deep Dive</summary>
+
+### Individual Prediction Workflow
+1. **Input**: Enter 10 clinical parameters (age, gender, lab values)
+2. **Processing**: XGBoost model analyzes biomarker patterns
+3. **Output**: Risk probability, confidence level, contributing factors
+4. **Time**: <100ms response time
+
+### Bulk Processing Capabilities
+1. **Upload**: CSV with multiple patient records
+2. **Validation**: Automatic data quality checks
+3. **Processing**: Batch predictions with progress tracking
+4. **Export**: Downloadable results with summary statistics
+
+### Explainability Features
+1. **SHAP Values**: Quantify each biomarker's contribution
+2. **Feature Ranking**: Identify most important factors
+3. **Clinical Notes**: Human-readable explanations
+4. **Visualization**: Charts showing decision reasoning
+
+</details>
+
 ## Quick Start
 
 ### Setup Progress Checklist
@@ -45,12 +68,12 @@ Setup Steps:
 ### Windows Users (Easiest)
 ```bash
 # Step 1-3: Train models (first time only)
-python _data_preparation.py      # ████████████████████ Processing data...
-python _supervised_learning.py   # ████████████████████ Training models...
-python _unsupervised_learning1.py # ████████████████████ Clustering analysis...
+python _data_preparation.py      #  Processing data...
+python _supervised_learning.py   #Training models...
+python _unsupervised_learning1.py # Clustering analysis...
 
 # Step 4-6: Start both servers
-START_SERVER.bat                 # ████████████████████ Launching application...
+START_SERVER.bat                # Launching application...
 ```
 
 ### Manual Start (All Platforms)
@@ -89,20 +112,64 @@ npm run dev
 └─────────────────────┴─────────────────────┴─────────────────────┘
 ```
 
+<details>
+<summary>🔬 Detailed Feature Breakdown</summary>
+
+#### Risk Assessment
+- **Input**: 10 clinical biomarkers (bilirubin, enzymes, proteins)
+- **Output**: Disease probability (0-100%), confidence level
+- **Speed**: Real-time predictions (<100ms)
+- **Accuracy**: 90%+ recall rate
+
+#### Batch Processing
+- **Format**: CSV files with patient data
+- **Capacity**: Unlimited patients per batch
+- **Export**: Results downloadable as CSV
+- **Analytics**: Summary statistics and risk distribution
+
+#### Explainability
+- **Method**: SHAP (SHapley Additive exPlanations)
+- **Granularity**: Per-feature contribution scores
+- **Visualization**: Feature importance charts
+- **Clinical Value**: Understand "why" predictions were made
+
+</details>
+
 ### Machine Learning Models
 
 ```
-Model Comparison:
+Model Comparison Matrix:
 ┌─────────────────┬─────────────┬─────────────┬─────────────┐
 │    Feature      │   XGBoost   │Random Forest│ Logistic    │
 ├─────────────────┼─────────────┼─────────────┼─────────────┤
-│ Accuracy        │ ⭐⭐⭐⭐⭐    │ ⭐⭐⭐⭐      │ ⭐⭐⭐        │
-│ Speed           │ ⭐⭐⭐        │ ⭐⭐⭐⭐      │ ⭐⭐⭐⭐⭐     │
-│ Interpretability│ ⭐⭐         │ ⭐⭐⭐        │ ⭐⭐⭐⭐⭐     │
-│ Clinical Trust  │ ⭐⭐⭐        │ ⭐⭐⭐⭐      │ ⭐⭐⭐⭐⭐     │
+│ Accuracy        │ Excellent   │ Very Good   │ Good        │
+│ Speed           │ Moderate    │ Good        │ Excellent   │
+│ Interpretability│ Limited     │ Moderate    │ Excellent   │
+│ Clinical Trust  │ Moderate    │ Good        │ Excellent   │
 │ Complexity      │ High        │ Medium      │ Low         │
+│ Best Use Case   │ Max Accuracy│ Balanced    │ Transparency│
 └─────────────────┴─────────────┴─────────────┴─────────────┘
 ```
+
+<details>
+<summary>📊 Interactive Model Details</summary>
+
+### XGBoost (Primary Model)
+- **Strengths**: Highest accuracy, robust to outliers
+- **Weaknesses**: Complex, harder to interpret
+- **Clinical Use**: When maximum accuracy is critical
+
+### Random Forest
+- **Strengths**: Good balance of accuracy and interpretability
+- **Weaknesses**: Can overfit, moderate complexity
+- **Clinical Use**: General-purpose screening
+
+### Logistic Regression
+- **Strengths**: Highly interpretable, fast, simple
+- **Weaknesses**: Limited to linear patterns
+- **Clinical Use**: When transparency is required
+
+</details>
 
 ### Technical Stack
 - **Frontend**: React 18 + TypeScript + Tailwind CSS
